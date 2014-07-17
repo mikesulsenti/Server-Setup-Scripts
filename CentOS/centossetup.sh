@@ -209,5 +209,12 @@ echo "directory mask = 0771" >> /etc/samba/smb.conf
 echo "writable = yes" >> /etc/samba/smb.conf
 echo "read only = No" >> /etc/samba/smb.conf
 echo "Added share, restarting samba"
-service samba restart
+systemctl restart smb.service
+systemctl restart nmb.service
+echo "Adding firewall rule for samba"
+firewall-cmd --permanent --zone=public --add-service=samba
+echo "Adding administrator to samba users"
+usermod -aG users administrator
+echo "Set password for administrator for samba"
+smbpasswd -a administrator
 fi
