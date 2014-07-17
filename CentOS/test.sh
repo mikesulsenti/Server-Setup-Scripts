@@ -1,9 +1,12 @@
 #! /bin/bash
 
-echo 'Going to setup, here we go...'
-echo '------------------------'
+echo 'Please Enter your password to access superuser'
+sudo su
+
+echo 'Now going to setup, here we go...'
+echo '------------------------------------'
 
 read -p "Run the update script? [yn]" answer
 if [[ $answer = y ]] ; then
-  echo <password> | sudo -S yum update ;
+  yum update ;
 fi
