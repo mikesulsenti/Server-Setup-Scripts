@@ -92,45 +92,6 @@ echo "Server is currently set for this network config:"
 ifconfig
 fi
 
-read -p "Configure a RAID Array? [yn]" answer
-if [[ $answer = y ]] ; then
-  fdisk -l
-  read -p "Drive 1: " drive1
-  read -p "Drive 2: " drive2
-  read -p "Drive 3: " drive3
-  read -p "Drive 4: " drive4
-do
-  echo -n "Please enter Drive 1: "
-  stty -echo
-  read -r drive1
-  echo
-  echo -n "Please enter Drive 2: "
-  read -r drive2
-  stty echo
-  echo
-  echo -n "Please enter Drive 3: "
-  read -r drive3
-  stty echo
-  echo
-  echo -n "Please enter Drive 4: "
-  read -r drive4
-  stty echo
-done
-mdadm --create /dev/md0 --chunk=256 --level=10 -p f2 --raid-devices=4 /dev/$device1 /dev/$device2 /dev/$device3 /dev/$device4 --verbose
-echo "Configuring mdadm"
-mdadm --detail --scan --verbose > /etc/mdadm.conf
-echo "Setting RAID Array to ext4 file system"
-mkfs.ext4 /dev/md0
-echo "Creating mount point..."
-mkdir /media/raid10
-echo "Editing fstab"
-echo "/dev/md0 /media/raid10/ ext4 defaults 1 2" >> /etc/fstab
-echo "Simulating boot..."
-mount -a
-mount
-echo "Please check to see if RAID mounted in the simulation"
-fi
-
 read -p "Configure a email SSMTP? [yn]" answer
 if [[ $answer = y ]] ; then
 	echo "Removing sendmail if installed"
@@ -185,4 +146,68 @@ echo "Changing default from field"
 echo "root:$serverfrom@$serverdomain.com:smtp.gmail.com" > /etc/ssmtp/revaliases
 echo "SENDING A TEST EMAIL... NOW"
 echo "Test message from CentOS server using ssmtp" | sudo ssmtp -vvv $gmailuser@$gmaildomain.com
+fi
+
+read -p "Configure a RAID Array? [yn]" answer
+if [[ $answer = y ]] ; then
+  fdisk -l
+  read -p "Drive 1: " drive1
+  read -p "Drive 2: " drive2
+  read -p "Drive 3: " drive3
+  read -p "Drive 4: " drive4
+do
+  echo -n "Please enter Drive 1: "
+  stty -echo
+  read -r drive1
+  echo
+  echo -n "Please enter Drive 2: "
+  read -r drive2
+  stty echo
+  echo
+  echo -n "Please enter Drive 3: "
+  read -r drive3
+  stty echo
+  echo
+  echo -n "Please enter Drive 4: "
+  read -r drive4
+  stty echo
+done
+mdadm --create /dev/md0 --chunk=256 --level=10 -p f2 --raid-devices=4 /dev/$device1 /dev/$device2 /dev/$device3 /dev/$device4 --verbose
+echo "Configuring mdadm"
+mdadm --detail --scan --verbose > /etc/mdadm.conf
+echo "Setting RAID Array to ext4 file system"
+mkfs.ext4 /dev/md0
+echo "Creating mount point..."
+mkdir /media/raid10
+echo "Editing fstab"
+echo "/dev/md0 /media/raid10/ ext4 defaults 1 2" >> /etc/fstab
+echo "Simulating boot..."
+mount -a
+mount
+echo "Please check to see if RAID mounted in the simulation"
+echo "Sending a test RAID Array alert email"
+mdadm --monitor --scan --test --oneshot
+echo "Adding mdadm config for on boot"
+echo 'DAEMON_OPTIONS="--syslog --test"' >> /etc/default/mdadm
+fi
+
+read -p "Configure SAMBA for the RAID Array? [yn]" answer
+if [[ $answer = y ]] ; then
+  fdisk -l
+  read -p "Set Main Share: " sambadir
+do
+  echo -n "Set Main Network Drive Name: "
+  stty -echo
+  read -r drive1
+done
+echo "" >> /etc/samba/smb.conf
+echo "/media/raid10/$sambadir" >> /etc/samba/smb.conf
+echo "valid users = @users" >> /etc/samba/smb.conf
+echo "force group = users" >> /etc/samba/smb.conf
+echo "create mask = 0660" >> /etc/samba/smb.conf
+echo "directory mask = 0771" >> /etc/samba/smb.conf
+echo "writable = yes" >> /etc/samba/smb.conf
+echo "read only = No" >> /etc/samba/smb.conf
+echo "Added share, restarting samba"
+service samba restart
 fi
