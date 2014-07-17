@@ -1,8 +1,7 @@
 #! /bin/bash
 
 echo 'Please Enter your password to access superuser'
-sudo su
-
+if [[ $UID -ne 0 ]]; then sudo "./test.sh"; exit 0; fi
 echo 'Now going to setup, here we go...'
 echo '------------------------------------'
 
