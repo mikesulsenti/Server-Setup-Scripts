@@ -218,3 +218,11 @@ usermod -aG users administrator
 echo "Set password for administrator for samba"
 smbpasswd -a administrator
 fi
+
+read -p "Install and configure Webmin? [yn]" answer
+if [[ $answer = y ]] ; then
+  wget http://www.webmin.com/download/rpm/webmin-current.rpm
+  rpm -U webmin-current.rpm
+echo "Webmin installed, please synchronise Samba users and system user in servers, samba windows file sharing, user sync, and select yes to everything and apply"
+echo "Create new users in Samba, Users and groups and put them in users group"
+fi
