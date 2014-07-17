@@ -1,6 +1,6 @@
 #! /bin/bash
 
-if [[ $UID -ne 0 ]]; then sudo "./test.sh"; exit 0; fi
+if [[ $UID -ne 0 ]]; then sudo "$0"; exit 0; fi
 echo 'Now going to server setup, here we go...'
 echo '------------------------------------'
 
