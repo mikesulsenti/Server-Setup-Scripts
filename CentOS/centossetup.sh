@@ -117,5 +117,72 @@ do
   stty echo
 done
 mdadm --create /dev/md0 --chunk=256 --level=10 -p f2 --raid-devices=4 /dev/$device1 /dev/$device2 /dev/$device3 /dev/$device4 --verbose
+echo "Configuring mdadm"
 mdadm --detail --scan --verbose > /etc/mdadm.conf
+echo "Setting RAID Array to ext4 file system"
+mkfs.ext4 /dev/md0
+echo "Creating mount point..."
+mkdir /media/raid10
+echo "Editing fstab"
+echo "/dev/md0 /media/raid10/ ext4 defaults 1 2" >> /etc/fstab
+echo "Simulating boot..."
+mount -a
+mount
+echo "Please check to see if RAID mounted in the simulation"
+fi
+
+read -p "Configure a email SSMTP? [yn]" answer
+if [[ $answer = y ]] ; then
+	echo "Removing sendmail if installed"
+yum -y remove sendmail
+echo [fedora_repo] >> /etc/yum.repos.d/fedora_repo.repo #allow yum access to the fedora repo
+echo name=fedora_repo >> /etc/yum.repos.d/fedora_repo.repo
+echo baseurl=http://download1.fedora.redhat.com/pub/epel/\$releasever/\$basearch/ >> /etc/yum.repos.d/fedora_repo.repo
+echo enabled=1 >> /etc/yum.repos.d/fedora_repo.repo
+echo skip_if_unavailable=1 >> /etc/yum.repos.d/fedora_repo.repo
+echo gpgcheck=0 >> /etc/yum.repos.d/fedora_repo.repo
+echo "Installing ssmtp"
+yum -y install ssmtp
+sed 's/^enabled=1/enabled=0/' -i /etc/yum.repos.d/fedora_repo.repo #disable fedora repo
+  read -p "Gmail Username: " gmailuser
+  read -p "Gmail Domain: " gmaildomain
+  read -p "Gmail Password: " gmailpass
+  read -p "Server From name: " serverfrom
+  read -p "Server Domain Name: " serverdomain
+do
+  echo -n "Please enter Gmail Username: "
+  stty -echo
+  read -r gmailuser
+  echo
+  echo -n "Please enter Gmail Domain: "
+  read -r gmaildomain
+  stty echo
+  echo
+  echo -n "Please enter Gmail Password: "
+  read -r gmailpass
+  stty echo
+  echo
+  echo -n "Please enter Server From Name: "
+  read -r serverfrom
+  stty echo
+  echo
+  echo -n "Please enter Server From Email Domain: "
+  read -r serverdomain
+  stty echo
+done
+echo "Saving config of sstmp"
+echo "root=$gmailuser@$gmaildomain.com" > /etc/ssmtp/ssmtp.conf
+echo "mailhub=smtp.gmail.com:587" >> /etc/ssmtp/ssmtp.conf
+echo "hostname=$gmailuser@$gmaildomain.com" >> /etc/ssmtp/ssmtp.conf
+echo "UseSTARTTLS=YES" >> /etc/ssmtp/ssmtp.conf
+echo "AuthUser=$gmailuser" >> /etc/ssmtp/ssmtp.conf
+echo "AuthPass=$gmailpass" >> /etc/ssmtp/ssmtp.conf
+echo "FromLineOverride=yes" >> /etc/ssmtp/ssmtp.conf
+echo "Securing the file"
+chmod 640 /etc/ssmtp/ssmtp.conf
+chown root:mail /etc/ssmtp/ssmtp.conf
+echo "Changing default from field"
+echo "root:$serverfrom@$serverdomain.com:smtp.gmail.com" > /etc/ssmtp/revaliases
+echo "SENDING A TEST EMAIL... NOW"
+echo "Test message from CentOS server using ssmtp" | sudo ssmtp -vvv $gmailuser@$gmaildomain.com
 fi
