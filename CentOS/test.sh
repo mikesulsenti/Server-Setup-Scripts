@@ -5,5 +5,5 @@ echo '------------------------'
 
 read -p "Run the update script? [yn]" answer
 if [[ $answer = y ]] ; then
-  echo $user <password> | sudo -S yum update ;;
+  echo <password> | sudo -S yum update ;
 fi
