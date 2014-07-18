@@ -17,8 +17,8 @@ fi
 read -p "Change host file contents? [yn]" answer
 if [[ $answer = y ]] ; then
   read -p "Please enter the desired Static IP Address for the server on LAN: " ipaddressinput
-  read -p "Please neter your desired server name for the server: " domainnameinput
-  read -p "Please neter your desired domain for the server: " servernameinput
+  read -p "Please neter your desired domain name for the server: " domainnameinput
+  read -p "Please neter your desired name for the server: " servernameinput
 echo "127.0.0.1   localhost" > /etc/hosts
 echo "127.0.1.1 	$servernameinput.$domainnameinput.local 	$servernameinput" >> /etc/hosts
 echo "$ipaddressinput	$servernameinput.$domainnameinput.local 	$servernameinput" >> /etc/hosts
@@ -80,9 +80,9 @@ echo "Securing the file"
 chmod 640 /etc/ssmtp/ssmtp.conf
 chown root:mail /etc/ssmtp/ssmtp.conf
 echo "Changing default from field"
-echo "root:$serverfrom@$serverdomain.com:smtp.gmail.com" > /etc/ssmtp/revaliases
+echo "root:$serverfrom@$serverdomain:smtp.gmail.com" > /etc/ssmtp/revaliases
 echo "SENDING A TEST EMAIL... NOW"
-echo "Test message from CentOS server using ssmtp" | sudo ssmtp -vvv $gmailuser@$gmaildomain.com
+echo "Test message from CentOS server using ssmtp" | sudo ssmtp -vvv $gmailuser@$gmaildomain
 fi
 
 read -p "Configure a RAID Array? [yn]" answer
