@@ -213,6 +213,7 @@ systemctl restart smb.service
 systemctl restart nmb.service
 echo "Adding firewall rule for samba"
 firewall-cmd --permanent --zone=public --add-service=samba
+firewall-cmd --reload
 echo "Adding administrator to samba users"
 usermod -aG users administrator
 echo "Set password for administrator for samba"
