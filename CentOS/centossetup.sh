@@ -9,34 +9,20 @@ if [[ $answer = y ]] ; then
   wget http://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.2.noarch.rpm
   ls *.rpm
   yum -y install epel-release-7-0.2.noarch.rpm
-  yum update
+  yum -y update
   echo 'Installing htop...'
   yum -y install htop ;
 fi
 
 read -p "Change host file contents? [yn]" answer
 if [[ $answer = y ]] ; then
-  read -p "Static IP Address Desired: " ipaddressinput
-  read -p "Domain desired: " domainnameinput
-  read -p "Server name desired: " servernameinput
-do
-  echo -n "Please enter the desired Static IP Address for the server on LAN: "
-  stty -echo
-  read -r ipaddressinput
-  echo
-  echo -n "Please neter your desired server name for the server: "
-  read -r servernameinput
-  stty echo
-  echo
-  echo -n "Please neter your desired domain for the server: "
-  read -r domainnameinput
-  stty echo
-done
+  read -p "Please enter the desired Static IP Address for the server on LAN:" ipaddressinput
+  read -p "Please neter your desired server name for the server:" domainnameinput
+  read -p "Please neter your desired domain for the server:" servernameinput
 echo "127.0.0.1   localhost" > /etc/hosts
 echo "127.0.1.1 	$servernameinput.$domainnameinput.local 	$servernameinput" >> /etc/hosts
 echo "$ipaddressinput	$servernameinput.$domainnameinput.local 	$servernameinput" >> /etc/hosts
 echo "$servernameinput.$domainnameinput.local" > /etc/hostname
-
 echo "Server name has been set to:"
 hostname -s
 echo "Server full hostname has been set to:"
@@ -62,34 +48,6 @@ if [[ $answer = y ]] ; then
     startx
     service vncserver start
 	systemcl enable vncserver.service
-  read -p "Static IP Address Desired: " ipaddressinput
-  read -p "Domain desired: " domainnameinput
-  read -p "Server name desired: " servernameinput
-do
-  echo -n "Please enter the desired Static IP Address for the server on LAN: "
-  stty -echo
-  read -r ipaddressinput
-  echo
-  echo -n "Please neter your desired server name for the server: "
-  read -r servernameinput
-  stty echo
-  echo
-  echo -n "Please neter your desired domain for the server: "
-  read -r domainnameinput
-  stty echo
-done
-> /etc/hosts
-echo "127.0.0.1   localhost" >> /etc/hosts
-echo "127.0.1.1 	$servernameinput.$domainnameinput.local 	$servernameinput" >> /etc/hosts
-echo "$ipaddressinput	$servernameinput.$domainnameinput.local 	$servernameinput" >> /etc/hosts
-echo "$servernameinput.$domainnameinput.local" > /etc/hostname
-
-echo "Server name has been set to:"
-hostname -s
-echo "Server full hostname has been set to:"
-hostname -f
-echo "Server is currently set for this network config:"
-ifconfig
 fi
 
 read -p "Configure a email SSMTP? [yn]" answer
@@ -105,32 +63,11 @@ echo gpgcheck=0 >> /etc/yum.repos.d/fedora_repo.repo
 echo "Installing ssmtp"
 yum -y install ssmtp
 sed 's/^enabled=1/enabled=0/' -i /etc/yum.repos.d/fedora_repo.repo #disable fedora repo
-  read -p "Gmail Username: " gmailuser
-  read -p "Gmail Domain: " gmaildomain
-  read -p "Gmail Password: " gmailpass
-  read -p "Server From name: " serverfrom
-  read -p "Server Domain Name: " serverdomain
-do
-  echo -n "Please enter Gmail Username: "
-  stty -echo
-  read -r gmailuser
-  echo
-  echo -n "Please enter Gmail Domain: "
-  read -r gmaildomain
-  stty echo
-  echo
-  echo -n "Please enter Gmail Password: "
-  read -r gmailpass
-  stty echo
-  echo
-  echo -n "Please enter Server From Name: "
-  read -r serverfrom
-  stty echo
-  echo
-  echo -n "Please enter Server From Email Domain: "
-  read -r serverdomain
-  stty echo
-done
+  read -p "Please enter Gmail Username:" gmailuser
+  read -p "Please enter Gmail Domain:" gmaildomain
+  read -p "Please enter Gmail Password:" gmailpass
+  read -p "Please enter Server From Name:" serverfrom
+  read -p "Please enter Server From Email Domain:" serverdomain
 echo "Saving config of sstmp"
 echo "root=$gmailuser@$gmaildomain.com" > /etc/ssmtp/ssmtp.conf
 echo "mailhub=smtp.gmail.com:587" >> /etc/ssmtp/ssmtp.conf
@@ -155,23 +92,6 @@ if [[ $answer = y ]] ; then
   read -p "Drive 2: " drive2
   read -p "Drive 3: " drive3
   read -p "Drive 4: " drive4
-do
-  echo -n "Please enter Drive 1: "
-  stty -echo
-  read -r drive1
-  echo
-  echo -n "Please enter Drive 2: "
-  read -r drive2
-  stty echo
-  echo
-  echo -n "Please enter Drive 3: "
-  read -r drive3
-  stty echo
-  echo
-  echo -n "Please enter Drive 4: "
-  read -r drive4
-  stty echo
-done
 mdadm --create /dev/md0 --chunk=256 --level=10 -p f2 --raid-devices=4 /dev/$device1 /dev/$device2 /dev/$device3 /dev/$device4 --verbose
 echo "Configuring mdadm"
 mdadm --detail --scan --verbose > /etc/mdadm.conf
@@ -194,12 +114,7 @@ fi
 read -p "Configure SAMBA for the RAID Array? [yn]" answer
 if [[ $answer = y ]] ; then
   fdisk -l
-  read -p "Set Main Share: " sambadir
-do
-  echo -n "Set Main Network Drive Name: "
-  stty -echo
-  read -r drive1
-done
+  read -p "Set Main Network Drive Share Name:" sambadir
 echo "" >> /etc/samba/smb.conf
 echo "/media/raid10/$sambadir" >> /etc/samba/smb.conf
 echo "valid users = @users" >> /etc/samba/smb.conf
