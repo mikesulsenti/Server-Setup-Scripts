@@ -16,9 +16,9 @@ fi
 
 read -p "Change host file contents? [yn]" answer
 if [[ $answer = y ]] ; then
-  read -p "Please enter the desired Static IP Address for the server on LAN:" ipaddressinput
-  read -p "Please neter your desired server name for the server:" domainnameinput
-  read -p "Please neter your desired domain for the server:" servernameinput
+  read -p "Please enter the desired Static IP Address for the server on LAN: " ipaddressinput
+  read -p "Please neter your desired server name for the server: " domainnameinput
+  read -p "Please neter your desired domain for the server: " servernameinput
 echo "127.0.0.1   localhost" > /etc/hosts
 echo "127.0.1.1 	$servernameinput.$domainnameinput.local 	$servernameinput" >> /etc/hosts
 echo "$ipaddressinput	$servernameinput.$domainnameinput.local 	$servernameinput" >> /etc/hosts
@@ -63,11 +63,11 @@ echo gpgcheck=0 >> /etc/yum.repos.d/fedora_repo.repo
 echo "Installing ssmtp"
 yum -y install ssmtp
 sed 's/^enabled=1/enabled=0/' -i /etc/yum.repos.d/fedora_repo.repo #disable fedora repo
-  read -p "Please enter Gmail Username:" gmailuser
-  read -p "Please enter Gmail Domain:" gmaildomain
-  read -p "Please enter Gmail Password:" gmailpass
-  read -p "Please enter Server From Name:" serverfrom
-  read -p "Please enter Server From Email Domain:" serverdomain
+  read -p "Please enter Gmail Username: " gmailuser
+  read -p "Please enter Gmail Domain: " gmaildomain
+  read -p "Please enter Gmail Password: " gmailpass
+  read -p "Please enter Server From Name: " serverfrom
+  read -p "Please enter Server From Email Domain: " serverdomain
 echo "Saving config of sstmp"
 echo "root=$gmailuser@$gmaildomain.com" > /etc/ssmtp/ssmtp.conf
 echo "mailhub=smtp.gmail.com:587" >> /etc/ssmtp/ssmtp.conf
@@ -114,7 +114,7 @@ fi
 read -p "Configure SAMBA for the RAID Array? [yn]" answer
 if [[ $answer = y ]] ; then
   fdisk -l
-  read -p "Set Main Network Drive Share Name:" sambadir
+  read -p "Set Main Network Drive Share Name: " sambadir
 echo "" >> /etc/samba/smb.conf
 echo "/media/raid10/$sambadir" >> /etc/samba/smb.conf
 echo "valid users = @users" >> /etc/samba/smb.conf
