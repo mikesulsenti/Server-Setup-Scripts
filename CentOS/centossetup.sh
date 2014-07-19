@@ -33,7 +33,7 @@ fi
 
 read -p "Add VNC server? [yn]" answer
 if [[ $answer = y ]] ; then
-	yum -y groupinstall Desktop
+	yum -y groupinstall "Desktop" "Desktop Platform" "X Window System" "Fonts"
 	yum -y install gnome-core xfce4 firefox
 	yum -y install tigervnc-server
 	service vncserver start
