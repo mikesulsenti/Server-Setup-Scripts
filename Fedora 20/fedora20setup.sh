@@ -4,6 +4,22 @@ if [[ $UID -ne 0 ]]; then sudo "$0"; exit 0; fi
 echo 'Now going to server setup, here we go...'
 echo '------------------------------------'
 
+read -p "This script will be able to install modularly the following things
+Update and install RHEL repo and htop
+LAMP stack
+hosts and hostname files
+Create VNC server
+Configure email SSMTP
+Configure Raid Array (Linux RAID 10 for 4 drives)
+Samba confirguration for the RAID
+Install and configure webmin
+Configure firewall
+Implement a dynamic MOTD
+So are you ready to continue? [yn]" answer
+if [[ $answer = y ]] ; then
+  echo "Okay, let's go..." ;
+fi
+
 read -p "Run the update script and add EPEL Repo? [yn]" answer
 if [[ $answer = y ]] ; then
   wget http://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.2.noarch.rpm
@@ -100,7 +116,7 @@ echo "SENDING A TEST EMAIL... NOW"
 echo "Test message from CentOS server using ssmtp" | sudo ssmtp -vvv $gmailuser@$gmaildomain
 fi
 
-read -p "Configure a RAID Array? [yn]" answer
+read -p "Configure a RAID Array (4 drives required, Linux RAID 10)? [yn]" answer
 if [[ $answer = y ]] ; then
   fdisk -l
   read -p "Drive 1: " drive1
@@ -171,12 +187,11 @@ echo "iptables configured"
 echo "Use the command iptables -A INPUT -p tcp --dport PORT -j ACCEPT to add more later"
 fi
 
-
 read -p "Install a Dynamic MOTD? [yn]" answer
 if [[ $answer = y ]] ; then
   mkdir setupfiles
   cd serverfiles
-  wget http://giz.moe/server-scripts/dynmotd/centos-6/dynmotd
+  wget http://giz.moe/server-scripts/dynmotd/fedora-20/dynmotd
   wget http://giz.moe/server-scripts/dynmotd/login
   wget http://giz.moe/server-scripts/dynmotd/profile
   wget http://giz.moe/server-scripts/dynmotd/sshd_config
