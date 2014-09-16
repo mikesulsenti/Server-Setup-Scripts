@@ -4,6 +4,12 @@ if [[ $UID -ne 0 ]]; then sudo "$0"; exit 0; fi
 echo 'Now going to server setup, here we go...'
 echo '------------------------------------'
 
+read -p "THIS SCRIPT WAS MADE AND TESTED FOR *FEDORA 20*!!
+Are you sure you want to continue? [yn]" answer
+if [[ $answer = y ]] ; then
+  echo "Okay..." ;
+fi
+
 read -p "This script will be able to install modularly the following things
 Update and install RHEL repo and htop
 LAMP stack
@@ -20,11 +26,8 @@ if [[ $answer = y ]] ; then
   echo "Okay, let's go..." ;
 fi
 
-read -p "Run the update script and add EPEL Repo? [yn]" answer
+read -p "Run the update script and install htop? [yn]" answer
 if [[ $answer = y ]] ; then
-  wget http://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.2.noarch.rpm
-  ls *.rpm
-  yum -y install epel-release-7-0.2.noarch.rpm
   yum -y update
   echo 'Installing htop...'
   yum -y install htop ;
