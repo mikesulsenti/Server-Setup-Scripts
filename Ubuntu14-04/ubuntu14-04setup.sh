@@ -39,12 +39,43 @@ read -p "Add user? [yn]" answer
 if [[ $answer = y ]] ; then
   read -p "Please enter the desired username: " userinput
   read -p "Please neter your desired domain name for the server: " passwdinput
-  read -p "Please neter your desired name for the server: " servernameinput
   useradd $userinput
   passwd $userinput $passwdinput
 read -p "Add user to sudoers? [yn]" answer
 if [[ $answer = y ]] ; then
   adduser $userinput sudo
+fi
+read -p "Add another user? [yn]" answer
+if [[ $answer = y ]] ; then
+  read -p "Please enter the desired username: " userinput2
+  read -p "Please neter your desired domain name for the server: " passwdinput2
+  useradd $userinput2
+  passwd $userinput2 $passwdinput2
+read -p "Add user to sudoers? [yn]" answer
+if [[ $answer = y ]] ; then
+  adduser $userinput2 sudo
+fi
+read -p "Add another user? [yn]" answer
+if [[ $answer = y ]] ; then
+  read -p "Please enter the desired username: " userinput3
+  read -p "Please neter your desired domain name for the server: " passwdinput3
+  useradd $userinput3
+  passwd $userinput3 $passwdinput3
+read -p "Add user to sudoers? [yn]" answer
+if [[ $answer = y ]] ; then
+  adduser $userinput3 sudo
+fi
+read -p "Add another user? [yn]" answer
+if [[ $answer = y ]] ; then
+  read -p "Please enter the desired username: " userinput4
+  read -p "Please neter your desired domain name for the server: " passwdinput4
+  useradd $userinput4
+  passwd $userinput4 $passwdinput4
+read -p "Add user to sudoers? [yn]" answer
+if [[ $answer = y ]] ; then
+  adduser $userinput4 sudo
+fi
+
 fi
 
 read -p "Setup LAMP stack? [yn]" answer
