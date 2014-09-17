@@ -4,20 +4,21 @@ if [[ $UID -ne 0 ]]; then sudo "$0"; exit 0; fi
 echo 'Now going to server setup, here we go...'
 echo '------------------------------------'
 
-read -p "THIS SCRIPT WAS MADE AND TESTED FOR *FEDORA 20*!!
+read -p "THIS SCRIPT WAS MADE AND TESTED FOR *UBUNTU 14.04*!!
 Are you sure you want to continue? [yn]" answer
 if [[ $answer = y ]] ; then
   echo "Okay..." ;
 fi
 
 read -p "This script will be able to install modularly the following things
-Update and install RHEL repo and htop
+Update and install htop
 LAMP stack
+Setup phpMyAdmin
 hosts and hostname files
 Create VNC server
+Install Postfix
 Configure email SSMTP
 Configure Raid Array (Linux RAID 10 for 4 drives)
-Configure a RAID Array with btfrs? (4 drives required, RAID 6)? [yn]
 Samba confirguration for the RAID
 Install and configure webmin
 Configure firewall
@@ -29,24 +30,52 @@ fi
 
 read -p "Run the update script and install htop? [yn]" answer
 if [[ $answer = y ]] ; then
-  yum -y update
+  apt-get -y update
   echo 'Installing htop...'
-  yum -y install htop ;
+  apt-get -y install htop ;
+fi
+
+read -p "Add user? [yn]" answer
+if [[ $answer = y ]] ; then
+  read -p "Please enter the desired username: " userinput
+  read -p "Please neter your desired domain name for the server: " passwdinput
+  read -p "Please neter your desired name for the server: " servernameinput
+  useradd $userinput
+  passwd $userinput $passwdinput
+read -p "Add user to sudoers? [yn]" answer
+if [[ $answer = y ]] ; then
+  adduser $userinput sudo
 fi
 
 read -p "Setup LAMP stack? [yn]" answer
 if [[ $answer = y ]] ; then
-  yum -y update
-  yum -y install httpd
-  systemctl start httpd.service
-  yum -y install mariadb-server mariadb
-  ssystemctl start mariadb
+  apt-get -y update
+  apt-get -y install apache2
+  service httpd start
+  apt-get install mysql-server php5-mysql
+  mysql_install_db
   mysql_secure_installation
-  yum -y install php php-mysql
-  yum -y install php-*
-  systemctl enable httpd.service
-  systemctl enable mariadb.service ;
+  apt-get install php5 libapache2-mod-php5 php5-mcrypt
+  apt-get -y install php5-*
+  service apache2 restart ;
 fi
+
+read -p "Setup phpMyAdmin? [yn]" answer
+if [[ $answer = y ]] ; then
+  echo 'For the server selection, choose apache2. Note - If you do not hit SPACE to select Apache the installer will not move the necessary files during installation. Hit SPACE, TAB, and then ENTER to select Apache'
+  echo 'Select yes when asked whether to use dbconfig-common to set up the database'
+  apt-get -y update
+  apt-get -y install phpmyadmin
+  php5enmod mcrypt
+  service apache2 restart ;
+fi
+
+read -p "Install FTP server? [yn]" answer
+if [[ $answer = y ]] ; then
+  apt-get -y install vsftpd
+  echo 'PLEASE EDIT /etc/vsftpd/vsftpd.conf to disable guest ftp, local=yes, and chroot local=yes...then service vsftpd restart';
+fi
+
 
 read -p "Change host file contents? [yn]" answer
 if [[ $answer = y ]] ; then
@@ -61,7 +90,6 @@ echo "Server name has been set to:"
 hostname -s
 echo "Server full hostname has been set to:"
 hostname -f
-service network restart
 echo "Server is currently set for this network config:"
 ifconfig
 fi
@@ -83,6 +111,13 @@ if [[ $answer = y ]] ; then
     startx
     service vncserver start
 	systemcl enable vncserver.service
+fi
+
+read -p "Install Postfix? [yn]" answer
+if [[ $answer = y ]] ; then
+  apt-get update
+  apt-get install postfix
+  echo "Go to https://www.digitalocean.com/community/tutorials/how-to-install-and-setup-postfix-on-ubuntu-14-04"
 fi
 
 read -p "Configure a email SSMTP? [yn]" answer
@@ -120,7 +155,7 @@ echo "SENDING A TEST EMAIL... NOW"
 echo "Test message from CentOS server using ssmtp" | sudo ssmtp -vvv $gmailuser@$gmaildomain
 fi
 
-read -p "Configure a RAID Array with 4 drives? (4 drives required, Linux RAID 10)? [yn]" answer
+read -p "Configure a RAID Array (4 drives required, Linux RAID 10)? [yn]" answer
 if [[ $answer = y ]] ; then
   fdisk -l
   read -p "Drive 1: " drive1
@@ -144,26 +179,6 @@ echo "Sending a test RAID Array alert email"
 mdadm --monitor --scan --test --oneshot
 echo "Adding mdadm config for on boot"
 echo 'DAEMON_OPTIONS="--syslog --test"' >> /etc/default/mdadm
-fi
-
-read -p "Configure a RAID Array with btfrs? (4 drives required, RAID 6)? [yn]" answer
-if [[ $answer = y ]] ; then
-  fdisk -l
-  read -p "Drive 1: " drive1
-  read -p "Drive 2: " drive2
-  read -p "Drive 3: " drive3
-  read -p "Drive 4: " drive4
-  mkfs.btrfs -L /dev/$device1 /dev/$device2 /dev/$device3 /dev/$device4
-echo "Striping the data, no mirroring, RAID0"
-mkfs.btrfs -d raid0 /dev/$device1 /dev/$device2
-echo "RAID10 for both data and metadata"
-mkfs.btrfs -m raid10 -d raid10 /dev/$device1 /dev/$device2 /dev/$device3 /dev/$device4
-echo "Don't duplicate metadata on a single drive"
-mkfs.btrfs -m single /dev/$device1
-echo "Simulating boot..."
-mount -a
-mount
-echo "Please check to see if RAID mounted in the simulation"
 fi
 
 read -p "Configure SAMBA for the RAID Array? [yn]" answer
@@ -192,30 +207,17 @@ fi
 
 read -p "Install and configure Webmin? [yn]" answer
 if [[ $answer = y ]] ; then
-  cd /opt
-  wget http://www.webmin.com/jcameron-key.asc
-  wget http://prdownloads.sourceforge.net/webadmin/webmin-1.700-1.noarch.rpm
-  rpm --import jcameron-key.asc
-  rpm -Uvh webmin-1.700-1.noarch.rpm
+  wget http://www.webmin.com/download/rpm/webmin-current.rpm
+  rpm -U webmin-current.rpm
 echo "Webmin installed, please synchronise Samba users and system user in servers, samba windows file sharing, user sync, and select yes to everything and apply"
 echo "Create new users in Samba, Users and groups and put them in users group"
-fi
-
-read -p "Configure iptables firewall? [yn]" answer
-if [[ $answer = y ]] ; then
-  read -p "Turn off firewall? [yn]" answer
-  if [[ $answer = y ]] ; then
-    systemctl stop firewalld.service
-  fi
-echo "iptables configured"
-echo "Use the command iptables -A INPUT -p tcp --dport PORT -j ACCEPT to add more later"
 fi
 
 read -p "Install a Dynamic MOTD? [yn]" answer
 if [[ $answer = y ]] ; then
   mkdir setupfiles
   cd serverfiles
-  wget http://giz.moe/server-scripts/dynmotd/fedora-20/dynmotd
+  wget http://giz.moe/server-scripts/dynmotd/ubuntu/dynmotd
   wget http://giz.moe/server-scripts/dynmotd/login
   wget http://giz.moe/server-scripts/dynmotd/profile
   wget http://giz.moe/server-scripts/dynmotd/sshd_config
@@ -234,7 +236,7 @@ if [[ $answer = y ]] ; then
   chmod 644 /etc/profile
   chmod 600 /etc/ssh/sshd_config
   chmod 755 /usr/bin/screenfetch
-  systemctl stop sshd
+  service ssh restart
 echo "Edit /usr/local/bin/dynmotd to change the MOTD."
 echo "Log out and log back in to test the new MOTD"
 fi
