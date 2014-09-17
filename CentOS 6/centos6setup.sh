@@ -34,7 +34,7 @@ fi
 
 read -p "Run the update script and add EPEL Repo and install htop? [yn]" answer
 if [[ $answer = y ]] ; then
-  wget http://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.2.noarch.rpm
+  wget http://dl.fedoraproject.org/pub/epel/6Server/x86_64/epel-release-6-8.noarch.rpm
   ls *.rpm
   yum -y install epel-release-7-0.2.noarch.rpm
   yum -y update
