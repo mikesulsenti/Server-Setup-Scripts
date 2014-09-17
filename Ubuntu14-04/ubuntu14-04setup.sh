@@ -250,7 +250,6 @@ if [[ $answer = y ]] ; then
   chown root /etc/update-motd.d/80-dynmotd
   chmod 755 /etc/update-motd.d/80-dynmotd
   chmod 755 /usr/bin/screenfetch
-  service ssh restart
 echo "Edit /usr/local/bin/dynmotd to change the MOTD."
 echo "Log out and log back in to test the new MOTD"
 fi
