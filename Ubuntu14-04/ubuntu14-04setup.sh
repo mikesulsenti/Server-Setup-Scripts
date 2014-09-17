@@ -9,9 +9,13 @@ Are you sure you want to continue? [yn]" answer
 if [[ $answer = y ]] ; then
   echo "Okay..." ;
 fi
+if [[ $answer = n ]] ; then
+  exit ;
+fi
 
 read -p "This script will be able to install modularly the following things
 Update and install htop
+Add users (up to 3)
 LAMP stack
 Setup phpMyAdmin
 hosts and hostname files
@@ -27,6 +31,9 @@ So are you ready to continue? [yn]" answer
 if [[ $answer = y ]] ; then
   echo "Okay, let's go..." ;
 fi
+if [[ $answer = n ]] ; then
+  exit ;
+fi
 
 read -p "Run the update script and install htop? [yn]" answer
 if [[ $answer = y ]] ; then
@@ -38,44 +45,32 @@ fi
 read -p "Add user? [yn]" answer
 if [[ $answer = y ]] ; then
   read -p "Please enter the desired username: " userinput
-  read -p "Please neter your desired domain name for the server: " passwdinput
   useradd $userinput
-  passwd $userinput $passwdinput
+  passwd $userinput
 read -p "Add user to sudoers? [yn]" answer
 if [[ $answer = y ]] ; then
-  adduser $userinput sudo
+  adduser $userinput sudo ;
 fi
 read -p "Add another user? [yn]" answer
 if [[ $answer = y ]] ; then
   read -p "Please enter the desired username: " userinput2
-  read -p "Please neter your desired domain name for the server: " passwdinput2
   useradd $userinput2
-  passwd $userinput2 $passwdinput2
+  passwd $userinput2
 read -p "Add user to sudoers? [yn]" answer
 if [[ $answer = y ]] ; then
-  adduser $userinput2 sudo
+  adduser $userinput2 sudo ;
 fi
 read -p "Add another user? [yn]" answer
 if [[ $answer = y ]] ; then
   read -p "Please enter the desired username: " userinput3
-  read -p "Please neter your desired domain name for the server: " passwdinput3
   useradd $userinput3
-  passwd $userinput3 $passwdinput3
+  passwd $userinput3
 read -p "Add user to sudoers? [yn]" answer
 if [[ $answer = y ]] ; then
-  adduser $userinput3 sudo
+  adduser $userinput3 sudo ;
 fi
-read -p "Add another user? [yn]" answer
-if [[ $answer = y ]] ; then
-  read -p "Please enter the desired username: " userinput4
-  read -p "Please neter your desired domain name for the server: " passwdinput4
-  useradd $userinput4
-  passwd $userinput4 $passwdinput4
-read -p "Add user to sudoers? [yn]" answer
-if [[ $answer = y ]] ; then
-  adduser $userinput4 sudo
 fi
-
+fi
 fi
 
 read -p "Setup LAMP stack? [yn]" answer
@@ -83,10 +78,10 @@ if [[ $answer = y ]] ; then
   apt-get -y update
   apt-get -y install apache2
   service httpd start
-  apt-get install mysql-server php5-mysql
+  apt-get -y install mysql-server php5-mysql
   mysql_install_db
   mysql_secure_installation
-  apt-get install php5 libapache2-mod-php5 php5-mcrypt
+  apt-get -y install php5 libapache2-mod-php5 php5-mcrypt
   apt-get -y install php5-*
   service apache2 restart ;
 fi
@@ -104,7 +99,7 @@ fi
 read -p "Install FTP server? [yn]" answer
 if [[ $answer = y ]] ; then
   apt-get -y install vsftpd
-  echo 'PLEASE EDIT /etc/vsftpd/vsftpd.conf to disable guest ftp, local=yes, and chroot local=yes...then service vsftpd restart';
+  echo 'PLEASE EDIT /etc/vsftpd.conf to disable guest ftp, local=yes, and chroot local=yes...then service vsftpd restart';
 fi
 
 
