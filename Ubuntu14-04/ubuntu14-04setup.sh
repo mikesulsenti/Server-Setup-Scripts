@@ -243,24 +243,12 @@ read -p "Install a Dynamic MOTD? [yn]" answer
 if [[ $answer = y ]] ; then
   mkdir setupfiles
   cd serverfiles
-  wget http://giz.moe/server-scripts/dynmotd/ubuntu/dynmotd
-  wget http://giz.moe/server-scripts/dynmotd/login
-  wget http://giz.moe/server-scripts/dynmotd/profile
-  wget http://giz.moe/server-scripts/dynmotd/sshd_config
+  wget http://giz.moe/server-scripts/dynmotd/ubuntu/80-dynmotd
   wget http://giz.moe/server-scripts/dynmotd/screenfetch
-  cp dynmotd /usr/local/bin/
-  cp login /etc/pam.d/
-  cp profile /etc/
-  cp sshd_config /etc/ssh/
-  cp sshd_config /etc/ssh/
-  mv screenFetch /usr/bin/
-  chown root /etc/pam.d/login
-  chown root /etc/profile
-  chown root /etc/ssh/
-  chmod 755 /usr/local/bin/dynmotd
-  chmod 644 /etc/pam.d/login
-  chmod 644 /etc/profile
-  chmod 600 /etc/ssh/sshd_config
+  cp 80-dynmotd /etc/update-motd.d/
+  cp screenfetch /usr/bin/
+  chown root /etc/update-motd.d/80-dynmotd
+  chmod 755 /etc/update-motd.d/80-dynmotd
   chmod 755 /usr/bin/screenfetch
   service ssh restart
 echo "Edit /usr/local/bin/dynmotd to change the MOTD."
