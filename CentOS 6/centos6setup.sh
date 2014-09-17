@@ -9,6 +9,9 @@ Are you sure you want to continue? [yn]" answer
 if [[ $answer = y ]] ; then
   echo "Okay..." ;
 fi
+if [[ $answer = n ]] ; then
+  exit ;
+fi
 
 read -p "This script will be able to install modularly the following things
 Update and install RHEL repo and htop
@@ -24,6 +27,9 @@ Implement a dynamic MOTD
 So are you ready to continue? [yn]" answer
 if [[ $answer = y ]] ; then
   echo "Okay, let's go..." ;
+fi
+if [[ $answer = n ]] ; then
+  exit ;
 fi
 
 read -p "Run the update script and add EPEL Repo and install htop? [yn]" answer
@@ -48,6 +54,16 @@ if [[ $answer = y ]] ; then
   yum -y install php-*
   chkconfig httpd on
   chkconfig mysqld on ;
+fi
+
+read -p "Setup phpMyAdmin? [yn]" answer
+if [[ $answer = y ]] ; then
+  echo 'For the server selection, choose apache2. Note - If you do not hit SPACE to select Apache the installer will not move the necessary files during installation. Hit SPACE, TAB, and then ENTER to select Apache'
+  echo 'Select yes when asked whether to use dbconfig-common to set up the database'
+  yum -y update
+  yum -y install phpmyadmin
+  vi /etc/httpd/conf.d/phpMyAdmin.conf
+  service apache2 restart ;
 fi
 
 read -p "Install FTP server? [yn]" answer
