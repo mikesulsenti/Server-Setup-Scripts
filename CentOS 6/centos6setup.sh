@@ -216,7 +216,7 @@ if [[ $answer = y ]] ; then
   cp profile /etc/
   cp sshd_config /etc/ssh/
   cp sshd_config /etc/ssh/
-  mv screenFetch /usr/bin/
+  mv screenfetch /usr/bin/
   chown root /etc/pam.d/login
   chown root /etc/profile
   chown root /etc/ssh/
