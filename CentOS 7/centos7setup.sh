@@ -28,9 +28,9 @@ fi
 
 read -p "Run the update script and add EPEL Repo to install htop? [yn]" answer
 if [[ $answer = y ]] ; then
-  wget http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-1.noarch.rpm
+  wget http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-2.noarch.rpm
   ls *.rpm
-  yum -y install epel-release-7-1.noarch.rpm
+  yum -y install epel-release-7-2.noarch.rpm
   yum -y update
   echo 'Installing htop...'
   yum -y install htop ;
@@ -97,8 +97,8 @@ if [[ $answer = y ]] ; then
   read -p "Please neter your desired domain name for the server: " domainnameinput
   read -p "Please neter your desired name for the server: " servernameinput
 echo "127.0.0.1   localhost" > /etc/hosts
-echo "127.0.1.1 	$servernameinput.$domainnameinput.local 	$servernameinput" >> /etc/hosts
-echo "$ipaddressinput	$servernameinput.$domainnameinput.local 	$servernameinput" >> /etc/hosts
+echo "127.0.1.1   $servernameinput.$domainnameinput.local   $servernameinput" >> /etc/hosts
+echo "$ipaddressinput $servernameinput.$domainnameinput.local   $servernameinput" >> /etc/hosts
 echo "$servernameinput.$domainnameinput.local" > /etc/hostname
 echo "Server name has been set to:"
 hostname -s
@@ -110,21 +110,21 @@ fi
 
 read -p "Add VNC server? [yn]" answer
 if [[ $answer = y ]] ; then
-	yum -y groupinstall "Desktop" "Desktop Platform" "X Window System" "Fonts"
-	yum -y install gnome-core xfce4 firefox
-	yum -y install tigervnc-server
-	service vncserver start
-	service vncserver stop
-	chkconfig vncserver on
-	wget http://pkgs.repoforge.org/x11vnc/x11vnc-0.9.13-1.el7.rf.x86_64.rpm
-	ls *.rpm
+  yum -y groupinstall "Desktop" "Desktop Platform" "X Window System" "Fonts"
+  yum -y install gnome-core xfce4 firefox
+  yum -y install tigervnc-server
+  service vncserver start
+  service vncserver stop
+  chkconfig vncserver on
+  wget http://pkgs.repoforge.org/x11vnc/x11vnc-0.9.13-1.el7.rf.x86_64.rpm
+  ls *.rpm
     yum -y install x11vnc-0.9.13-1.el7.rf.x86_64.rpm
     mkdir /root/.vnc/
     x11vnc -storepasswd /root/.vnc/passwd
     vncpassword
     startx
     service vncserver start
-	systemcl enable vncserver.service
+  systemcl enable vncserver.service
 fi
 
 read -p "Configure SAMBA for the RAID Array? [yn]" answer
