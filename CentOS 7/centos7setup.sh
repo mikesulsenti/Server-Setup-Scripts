@@ -12,7 +12,9 @@ fi
 
 read -p "This script will be able to install modularly the following things
 Update and install RHEL repo and htop
+Add Users (Up to 3 currently)
 LAMP stack
+Install phpmyadmin
 hosts and hostname files
 Create VNC server
 Configure email SSMTP
