@@ -45,7 +45,7 @@ fi
 read -p "Add user? [yn]" answer
 if [[ $answer = y ]] ; then
   read -p "Please enter the desired username: " userinput
-  useradd $userinput
+  useradd -m $userinput
   passwd $userinput
 read -p "Add user to sudoers? [yn]" answer
 if [[ $answer = y ]] ; then
@@ -54,7 +54,7 @@ fi
 read -p "Add another user? [yn]" answer
 if [[ $answer = y ]] ; then
   read -p "Please enter the desired username: " userinput2
-  useradd $userinput2
+  useradd -m $userinput2
   passwd $userinput2
 read -p "Add user to sudoers? [yn]" answer
 if [[ $answer = y ]] ; then
@@ -63,7 +63,7 @@ fi
 read -p "Add another user? [yn]" answer
 if [[ $answer = y ]] ; then
   read -p "Please enter the desired username: " userinput3
-  useradd $userinput3
+  useradd -m $userinput3
   passwd $userinput3
 read -p "Add user to sudoers? [yn]" answer
 if [[ $answer = y ]] ; then

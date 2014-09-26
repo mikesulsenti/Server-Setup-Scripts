@@ -26,7 +26,7 @@ if [[ $answer = y ]] ; then
   echo "Okay, let's go..." ;
 fi
 
-read -p "Run the update script and add EPEL Repo? [yn]" answer
+read -p "Run the update script and add EPEL Repo to install htop? [yn]" answer
 if [[ $answer = y ]] ; then
   wget http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-1.noarch.rpm
   ls *.rpm
@@ -34,6 +34,37 @@ if [[ $answer = y ]] ; then
   yum -y update
   echo 'Installing htop...'
   yum -y install htop ;
+fi
+
+read -p "Add user? [yn]" answer
+if [[ $answer = y ]] ; then
+  read -p "Please enter the desired username: " userinput
+  useradd $userinput
+  passwd $userinput
+read -p "Add user to sudoers? [yn]" answer
+if [[ $answer = y ]] ; then
+  adduser $userinput sudo ;
+fi
+read -p "Add another user? [yn]" answer
+if [[ $answer = y ]] ; then
+  read -p "Please enter the desired username: " userinput2
+  useradd $userinput2
+  passwd $userinput2
+read -p "Add user to sudoers? [yn]" answer
+if [[ $answer = y ]] ; then
+  adduser $userinput2 sudo ;
+fi
+read -p "Add another user? [yn]" answer
+if [[ $answer = y ]] ; then
+  read -p "Please enter the desired username: " userinput3
+  useradd $userinput3
+  passwd $userinput3
+read -p "Add user to sudoers? [yn]" answer
+if [[ $answer = y ]] ; then
+  adduser $userinput3 sudo ;
+fi
+fi
+fi
 fi
 
 read -p "Setup LAMP stack? [yn]" answer
@@ -48,6 +79,16 @@ if [[ $answer = y ]] ; then
   yum -y install php-*
   systemctl enable httpd.service
   systemctl enable mariadb.service ;
+fi
+
+read -p "Setup phpMyAdmin? [yn]" answer
+if [[ $answer = y ]] ; then
+  echo 'For the server selection, choose apache2. Note - If you do not hit SPACE to select Apache the installer will not move the necessary files during installation. Hit SPACE, TAB, and then ENTER to select Apache'
+  echo 'Select yes when asked whether to use dbconfig-common to set up the database'
+  yum -y update
+  yum -y install phpmyadmin
+  vi /etc/httpd/conf.d/phpMyAdmin.conf
+  systemctl restart httpd.service ;
 fi
 
 read -p "Change host file contents? [yn]" answer
@@ -84,67 +125,6 @@ if [[ $answer = y ]] ; then
     startx
     service vncserver start
 	systemcl enable vncserver.service
-fi
-
-read -p "Configure a email SSMTP? [yn]" answer
-if [[ $answer = y ]] ; then
-	echo "Removing sendmail if installed"
-yum -y remove sendmail
-echo [fedora_repo] >> /etc/yum.repos.d/fedora_repo.repo #allow yum access to the fedora repo
-echo name=fedora_repo >> /etc/yum.repos.d/fedora_repo.repo
-echo baseurl=http://download1.fedora.redhat.com/pub/epel/\$releasever/\$basearch/ >> /etc/yum.repos.d/fedora_repo.repo
-echo enabled=1 >> /etc/yum.repos.d/fedora_repo.repo
-echo skip_if_unavailable=1 >> /etc/yum.repos.d/fedora_repo.repo
-echo gpgcheck=0 >> /etc/yum.repos.d/fedora_repo.repo
-echo "Installing ssmtp"
-yum -y install ssmtp
-sed 's/^enabled=1/enabled=0/' -i /etc/yum.repos.d/fedora_repo.repo #disable fedora repo
-  read -p "Please enter Gmail Username: " gmailuser
-  read -p "Please enter Gmail Domain: " gmaildomain
-  read -p "Please enter Gmail Password: " gmailpass
-  read -p "Please enter Server From Name: " serverfrom
-  read -p "Please enter Server From Email Domain: " serverdomain
-echo "Saving config of sstmp"
-echo "root=$gmailuser@$gmaildomain.com" > /etc/ssmtp/ssmtp.conf
-echo "mailhub=smtp.gmail.com:587" >> /etc/ssmtp/ssmtp.conf
-echo "hostname=$gmailuser@$gmaildomain.com" >> /etc/ssmtp/ssmtp.conf
-echo "UseSTARTTLS=YES" >> /etc/ssmtp/ssmtp.conf
-echo "AuthUser=$gmailuser" >> /etc/ssmtp/ssmtp.conf
-echo "AuthPass=$gmailpass" >> /etc/ssmtp/ssmtp.conf
-echo "FromLineOverride=yes" >> /etc/ssmtp/ssmtp.conf
-echo "Securing the file"
-chmod 640 /etc/ssmtp/ssmtp.conf
-chown root:mail /etc/ssmtp/ssmtp.conf
-echo "Changing default from field"
-echo "root:$serverfrom@$serverdomain:smtp.gmail.com" > /etc/ssmtp/revaliases
-echo "SENDING A TEST EMAIL... NOW"
-echo "Test message from CentOS server using ssmtp" | sudo ssmtp -vvv $gmailuser@$gmaildomain
-fi
-
-read -p "Configure a RAID Array (4 drives required, Linux RAID 10)? [yn]" answer
-if [[ $answer = y ]] ; then
-  fdisk -l
-  read -p "Drive 1: " drive1
-  read -p "Drive 2: " drive2
-  read -p "Drive 3: " drive3
-  read -p "Drive 4: " drive4
-mdadm --create /dev/md0 --chunk=256 --level=10 -p f2 --raid-devices=4 /dev/$device1 /dev/$device2 /dev/$device3 /dev/$device4 --verbose
-echo "Configuring mdadm"
-mdadm --detail --scan --verbose > /etc/mdadm.conf
-echo "Setting RAID Array to ext4 file system"
-mkfs.ext4 /dev/md0
-echo "Creating mount point..."
-mkdir /media/raid10
-echo "Editing fstab"
-echo "/dev/md0 /media/raid10/ ext4 defaults 1 2" >> /etc/fstab
-echo "Simulating boot..."
-mount -a
-mount
-echo "Please check to see if RAID mounted in the simulation"
-echo "Sending a test RAID Array alert email"
-mdadm --monitor --scan --test --oneshot
-echo "Adding mdadm config for on boot"
-echo 'DAEMON_OPTIONS="--syslog --test"' >> /etc/default/mdadm
 fi
 
 read -p "Configure SAMBA for the RAID Array? [yn]" answer
@@ -203,7 +183,7 @@ if [[ $answer = y ]] ; then
   cp profile /etc/
   cp sshd_config /etc/ssh/
   cp sshd_config /etc/ssh/
-  mv screenFetch /usr/bin/
+  mv screenfetch /usr/bin/
   chown root /etc/pam.d/login
   chown root /etc/profile
   chown root /etc/ssh/
@@ -212,7 +192,7 @@ if [[ $answer = y ]] ; then
   chmod 644 /etc/profile
   chmod 600 /etc/ssh/sshd_config
   chmod 755 /usr/bin/screenfetch
-  systemctl stop sshd
+  systemctl restart sshd
 echo "Edit /usr/local/bin/dynmotd to change the MOTD."
 echo "Log out and log back in to test the new MOTD"
 fi

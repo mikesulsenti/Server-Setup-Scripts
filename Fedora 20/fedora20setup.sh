@@ -85,41 +85,6 @@ if [[ $answer = y ]] ; then
 	systemcl enable vncserver.service
 fi
 
-read -p "Configure a email SSMTP? [yn]" answer
-if [[ $answer = y ]] ; then
-	echo "Removing sendmail if installed"
-yum -y remove sendmail
-echo [fedora_repo] >> /etc/yum.repos.d/fedora_repo.repo #allow yum access to the fedora repo
-echo name=fedora_repo >> /etc/yum.repos.d/fedora_repo.repo
-echo baseurl=http://download1.fedora.redhat.com/pub/epel/\$releasever/\$basearch/ >> /etc/yum.repos.d/fedora_repo.repo
-echo enabled=1 >> /etc/yum.repos.d/fedora_repo.repo
-echo skip_if_unavailable=1 >> /etc/yum.repos.d/fedora_repo.repo
-echo gpgcheck=0 >> /etc/yum.repos.d/fedora_repo.repo
-echo "Installing ssmtp"
-yum -y install ssmtp
-sed 's/^enabled=1/enabled=0/' -i /etc/yum.repos.d/fedora_repo.repo #disable fedora repo
-  read -p "Please enter Gmail Username: " gmailuser
-  read -p "Please enter Gmail Domain: " gmaildomain
-  read -p "Please enter Gmail Password: " gmailpass
-  read -p "Please enter Server From Name: " serverfrom
-  read -p "Please enter Server From Email Domain: " serverdomain
-echo "Saving config of sstmp"
-echo "root=$gmailuser@$gmaildomain.com" > /etc/ssmtp/ssmtp.conf
-echo "mailhub=smtp.gmail.com:587" >> /etc/ssmtp/ssmtp.conf
-echo "hostname=$gmailuser@$gmaildomain.com" >> /etc/ssmtp/ssmtp.conf
-echo "UseSTARTTLS=YES" >> /etc/ssmtp/ssmtp.conf
-echo "AuthUser=$gmailuser" >> /etc/ssmtp/ssmtp.conf
-echo "AuthPass=$gmailpass" >> /etc/ssmtp/ssmtp.conf
-echo "FromLineOverride=yes" >> /etc/ssmtp/ssmtp.conf
-echo "Securing the file"
-chmod 640 /etc/ssmtp/ssmtp.conf
-chown root:mail /etc/ssmtp/ssmtp.conf
-echo "Changing default from field"
-echo "root:$serverfrom@$serverdomain:smtp.gmail.com" > /etc/ssmtp/revaliases
-echo "SENDING A TEST EMAIL... NOW"
-echo "Test message from CentOS server using ssmtp" | sudo ssmtp -vvv $gmailuser@$gmaildomain
-fi
-
 read -p "Configure a RAID Array with 4 drives? (4 drives required, Linux RAID 10)? [yn]" answer
 if [[ $answer = y ]] ; then
   fdisk -l
@@ -127,7 +92,7 @@ if [[ $answer = y ]] ; then
   read -p "Drive 2: " drive2
   read -p "Drive 3: " drive3
   read -p "Drive 4: " drive4
-mdadm --create /dev/md0 --chunk=256 --level=10 -p f2 --raid-devices=4 /dev/$device1 /dev/$device2 /dev/$device3 /dev/$device4 --verbose
+mdadm --create /dev/md0 --chunk=256 --level=10 -p f2 --raid-devices=4 /dev/$drive1 /dev/$drive2 /dev/$drive3 /dev/$drive4 --verbose
 echo "Configuring mdadm"
 mdadm --detail --scan --verbose > /etc/mdadm.conf
 echo "Setting RAID Array to ext4 file system"
@@ -153,13 +118,13 @@ if [[ $answer = y ]] ; then
   read -p "Drive 2: " drive2
   read -p "Drive 3: " drive3
   read -p "Drive 4: " drive4
-  mkfs.btrfs -L /dev/$device1 /dev/$device2 /dev/$device3 /dev/$device4
+  mkfs.btrfs -L /dev/$drive1 /dev/$drive2 /dev/$drive3 /dev/$drive4
 echo "Striping the data, no mirroring, RAID0"
-mkfs.btrfs -d raid0 /dev/$device1 /dev/$device2
+mkfs.btrfs -d raid0 /dev/$drive1 /dev/$drive2
 echo "RAID10 for both data and metadata"
-mkfs.btrfs -m raid10 -d raid10 /dev/$device1 /dev/$device2 /dev/$device3 /dev/$device4
+mkfs.btrfs -m raid10 -d raid10 /dev/$drive1 /dev/$drive2 /dev/$drive3 /dev/$drive4
 echo "Don't duplicate metadata on a single drive"
-mkfs.btrfs -m single /dev/$device1
+mkfs.btrfs -m single /dev/$drive1
 echo "Simulating boot..."
 mount -a
 mount
@@ -225,7 +190,7 @@ if [[ $answer = y ]] ; then
   cp profile /etc/
   cp sshd_config /etc/ssh/
   cp sshd_config /etc/ssh/
-  mv screenFetch /usr/bin/
+  mv screenfetch /usr/bin/
   chown root /etc/pam.d/login
   chown root /etc/profile
   chown root /etc/ssh/
